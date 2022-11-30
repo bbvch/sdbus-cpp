@@ -11,6 +11,8 @@ sdbus-c++ has been written primarily as a replacement of dbus-c++, which current
 
 Even though sdbus-c++ uses sd-bus library, it is not necessarily constrained to systemd and can perfectly be used in non-systemd environments as well.
 
+**This is the backport branch of sdbus-c++, which allows to compile this library on systems with just a C++14 compliant compiler.**
+
 Building and installing the library
 -----------------------------------
 
@@ -81,7 +83,8 @@ $ sudo cmake --build . --target install
 Dependencies
 ------------
 
-* `C++17` - the library uses C++17 features.
+* `C++14` - the library uses C++14 features.
+* `Boost` - the library uses some boost stuff to compile. All these dependencies are header-only, so no boost library needs to be linked.
 * `libsystemd` - systemd library containing sd-bus implementation. This library is part of systemd. Systemd at least v236 is needed. (In case you have a non-systemd environment, don't worry, see [Solving libsystemd dependency](docs/using-sdbus-c++.md#solving-libsystemd-dependency) for more information.)
 * `googletest` - google unit testing framework, only necessary when building tests, will be downloaded and built automatically.
 * `pkgconfig` - required for sdbus-c++ to be able to find some dependency packages.
