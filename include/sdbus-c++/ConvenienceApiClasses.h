@@ -55,7 +55,10 @@ namespace sdbus {
         ~MethodRegistrator() noexcept(false);
 
         MethodRegistrator& onInterface(std::string interfaceName);
-        template <typename _Function> MethodRegistrator& implementedAs(_Function&& callback);
+        template <typename _Function>
+        typename std::enable_if_t<!is_async_method_v<_Function>, MethodRegistrator&> implementedAs(_Function&& callback);
+        template <typename _Function>
+        typename std::enable_if_t<is_async_method_v<_Function>, MethodRegistrator&> implementedAs(_Function&& callback);
         MethodRegistrator& withInputParamNames(std::vector<std::string> paramNames);
         template <typename... _String> MethodRegistrator& withInputParamNames(_String... paramNames);
         MethodRegistrator& withOutputParamNames(std::vector<std::string> paramNames);
@@ -208,7 +211,10 @@ namespace sdbus {
     public:
         SignalSubscriber(IProxy& proxy, const std::string& signalName);
         SignalSubscriber& onInterface(std::string interfaceName);
-        template <typename _Function> void call(_Function&& callback);
+        template <typename _Function>
+        std::enable_if_t<has_error_param_v<_Function>> call(_Function&& callback);
+        template <typename _Function>
+        std::enable_if_t<!has_error_param_v<_Function>> call(_Function&& callback);
 
     private:
         IProxy& proxy_;

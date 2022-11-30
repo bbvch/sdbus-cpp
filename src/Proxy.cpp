@@ -37,7 +37,8 @@
 #include <chrono>
 #include <utility>
 
-namespace sdbus::internal {
+namespace sdbus {
+namespace internal {
 
 Proxy::Proxy(sdbus::internal::IConnection& connection, std::string destination, std::string objectPath)
     : connection_(&connection, [](sdbus::internal::IConnection *){ /* Intentionally left empty */ })
@@ -149,7 +150,7 @@ MethodReply Proxy::sendMethodCallMessageAndWaitForReply(const MethodCall& messag
 
 void Proxy::SyncCallReplyData::sendMethodReplyToWaitingThread(MethodReply& reply, const Error* error)
 {
-    std::unique_lock lock{mutex_};
+    std::unique_lock<std::mutex> lock{mutex_};
     SCOPE_EXIT{ cond_.notify_one(); }; // This must happen before unlocking the mutex to avoid potential data race on spurious wakeup in the waiting thread
     SCOPE_EXIT{ arrived_ = true; };
 
@@ -163,7 +164,7 @@ void Proxy::SyncCallReplyData::sendMethodReplyToWaitingThread(MethodReply& reply
 
 MethodReply Proxy::SyncCallReplyData::waitForMethodReply()
 {
-    std::unique_lock lock{mutex_};
+    std::unique_lock<std::mutex> lock{mutex_};
     cond_.wait(lock, [this](){ return arrived_; });
 
     //arrived_ = false; // Necessary if SyncCallReplyData instance is thread_local
@@ -320,9 +321,7 @@ int Proxy::sdbus_signal_handler(sd_bus_message *sdbusMessage, void *userData, sd
     return 0;
 }
 
-}
-
-namespace sdbus {
+} // namespace sdbus::internal
 
 PendingAsyncCall::PendingAsyncCall(std::weak_ptr<void> callData)
     : callData_(std::move(callData))
@@ -331,7 +330,8 @@ PendingAsyncCall::PendingAsyncCall(std::weak_ptr<void> callData)
 
 void PendingAsyncCall::cancel()
 {
-    if (auto ptr = callData_.lock(); ptr != nullptr)
+    auto ptr = callData_.lock();
+    if (ptr != nullptr)
     {
         auto* callData = static_cast<internal::Proxy::AsyncCalls::CallData*>(ptr.get());
         callData->proxy.pendingAsyncCalls_.removeCall(callData->slot.get());
@@ -347,10 +347,6 @@ bool PendingAsyncCall::isPending() const
 {
     return !callData_.expired();
 }
-
-}
-
-namespace sdbus {
 
 std::unique_ptr<sdbus::IProxy> createProxy( IConnection& connection
                                           , std::string destination

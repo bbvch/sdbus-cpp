@@ -76,7 +76,8 @@ namespace sdbus {
     {
         assert(call_.isValid());
         auto reply = call_.createReply();
-        (reply << ... << results);
+        using _ = std::initializer_list<int>;
+        (void)_{(void(reply << results), 0)...};
         reply.send();
     }
 

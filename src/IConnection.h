@@ -45,7 +45,8 @@ namespace sdbus {
     }
 }
 
-namespace sdbus::internal {
+namespace sdbus {
+namespace internal {
 
     class IConnection
         : public ::sdbus::IConnection
@@ -97,6 +98,7 @@ namespace sdbus::internal {
     [[nodiscard]] std::unique_ptr<sdbus::internal::IConnection> createConnection();
     [[nodiscard]] std::unique_ptr<sdbus::internal::IConnection> createPseudoConnection();
 
+}
 }
 
 #endif /* SDBUS_CXX_INTERNAL_ICONNECTION_H_ */

@@ -38,7 +38,8 @@
 #include <atomic>
 #include <cassert>
 
-namespace sdbus::internal {
+namespace sdbus {
+namespace internal {
 
     class Object
         : public IObject
@@ -181,6 +182,7 @@ namespace sdbus::internal {
         std::atomic<const Message*> m_CurrentlyProcessedMessage{nullptr};
     };
 
+}
 }
 
 #endif /* SDBUS_CXX_INTERNAL_OBJECT_H_ */

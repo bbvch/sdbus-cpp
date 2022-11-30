@@ -49,8 +49,8 @@ public:
     {
         std::map<sdbus::ObjectPath, std::map<std::string, std::map<std::string, sdbus::Variant>>> objectsInterfacesAndProperties;
         objectsInterfacesAndProperties = GetManagedObjects();
-        for (const auto& [object, interfacesAndProperties] : objectsInterfacesAndProperties) {
-            onInterfacesAdded(object, interfacesAndProperties);
+        for (const auto& item : objectsInterfacesAndProperties) {
+            onInterfacesAdded(item.first, item.second);
         }
     }
 
@@ -59,8 +59,8 @@ private:
             , const std::map<std::string, std::map<std::string, sdbus::Variant>>& interfacesAndProperties) override
     {
         std::cout << objectPath << " added:\t";
-        for (const auto& [interface, _] : interfacesAndProperties) {
-            std::cout << interface << " ";
+        for (const auto& item : interfacesAndProperties) {
+            std::cout << item.first << " ";
         }
         std::cout << std::endl;
 

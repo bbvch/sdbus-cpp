@@ -415,7 +415,7 @@ namespace sdbus {
     // Tag specifying that the proxy shall not run an event loop thread on its D-Bus connection.
     // Such proxies are typically created to carry out a simple synchronous D-Bus call(s) and then are destroyed.
     struct dont_run_event_loop_thread_t { explicit dont_run_event_loop_thread_t() = default; };
-    inline constexpr dont_run_event_loop_thread_t dont_run_event_loop_thread{};
+    extern const dont_run_event_loop_thread_t dont_run_event_loop_thread;
 
     /*!
      * @brief Creates a proxy object for a specific remote D-Bus object

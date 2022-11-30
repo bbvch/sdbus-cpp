@@ -35,8 +35,17 @@
 #include <unistd.h>
 #include <poll.h>
 #include <sys/eventfd.h>
+#include <boost/chrono/ceil.hpp>
 
-namespace sdbus::internal {
+namespace sdbus {
+namespace internal {
+
+const Connection::default_bus_t Connection::default_bus{};
+const Connection::system_bus_t Connection::system_bus{};
+const Connection::session_bus_t Connection::session_bus{};
+const Connection::custom_session_bus_t Connection::custom_session_bus{};
+const Connection::remote_system_bus_t Connection::remote_system_bus{};
+const Connection::pseudo_bus_t Connection::pseudo_bus{};
 
 Connection::Connection(std::unique_ptr<ISdBus>&& interface, const BusFactory& busFactory)
     : iface_(std::move(interface))
@@ -109,7 +118,7 @@ void Connection::enterEventLoop()
     loopThreadId_ = std::this_thread::get_id();
     SCOPE_EXIT{ loopThreadId_ = std::thread::id{}; };
 
-    std::lock_guard guard(loopMutex_);
+    std::lock_guard<std::mutex> guard(loopMutex_);
 
     while (true)
     {
@@ -376,7 +385,7 @@ MethodReply Connection::tryCallMethodSynchronously(const MethodCall& message, ui
         }
 
         // Synchronous D-Bus call
-        std::lock_guard guard(loopMutex_, std::adopt_lock);
+        std::lock_guard<std::mutex> guard(loopMutex_, std::adopt_lock);
         return message.send(timeout);
     }
 
@@ -558,15 +567,13 @@ Connection::EventFd::~EventFd()
 
 } // namespace sdbus::internal
 
-namespace sdbus {
-
-std::optional<std::chrono::microseconds> IConnection::PollData::getRelativeTimeout() const
+boost::optional<std::chrono::microseconds> IConnection::PollData::getRelativeTimeout() const
 {
     constexpr auto zero = std::chrono::microseconds::zero();
     if (timeout_usec == 0)
         return zero;
     else if (timeout_usec == UINT64_MAX)
-        return std::nullopt;
+        return boost::none;
 
     // We need C so that we use the same clock as the underlying sd-bus lib.
     // We use POSIX's clock_gettime in favour of std::chrono::steady_clock to ensure this.
@@ -582,12 +589,10 @@ std::optional<std::chrono::microseconds> IConnection::PollData::getRelativeTimeo
 int IConnection::PollData::getPollTimeout() const
 {
     auto timeout = getRelativeTimeout();
-    return timeout ? static_cast<int>(std::chrono::ceil<std::chrono::milliseconds>(timeout.value()).count()) : -1;
+    return timeout ? static_cast<int>(boost::chrono::ceil<boost::chrono::milliseconds>(boost::chrono::microseconds(timeout.value().count())).count()) : -1;
 }
 
-} // namespace sdbus
-
-namespace sdbus::internal {
+namespace internal {
 
 std::unique_ptr<sdbus::internal::IConnection> createConnection()
 {
@@ -604,8 +609,6 @@ std::unique_ptr<sdbus::internal::IConnection> createPseudoConnection()
 }
 
 } // namespace sdbus::internal
-
-namespace sdbus {
 
 using internal::Connection;
 

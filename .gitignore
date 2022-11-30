@@ -16,6 +16,9 @@ tests/run-test-on-device.sh
 .settings
 *.log
 
+#qtcreator
+CMakeLists.txt.user
+
 #autotools
 sdbus-cpp.pc
 *Makefile

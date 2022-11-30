@@ -38,7 +38,8 @@
 #include <atomic>
 #include <condition_variable>
 
-namespace sdbus::internal {
+namespace sdbus {
+namespace internal {
 
     class Proxy
         : public IProxy
@@ -145,14 +146,15 @@ namespace sdbus::internal {
 
             bool addCall(void* slot, std::shared_ptr<CallData> asyncCallData)
             {
-                std::lock_guard lock(mutex_);
+                std::lock_guard<std::mutex> lock(mutex_);
                 return calls_.emplace(slot, std::move(asyncCallData)).second;
             }
 
             void removeCall(void* slot)
             {
-                std::unique_lock lock(mutex_);
-                if (auto it = calls_.find(slot); it != calls_.end())
+                std::unique_lock<std::mutex> lock(mutex_);
+                auto it = calls_.find(slot);
+                if (it != calls_.end())
                 {
                     auto callData = std::move(it->second);
                     calls_.erase(it);
@@ -167,7 +169,7 @@ namespace sdbus::internal {
 
             void clear()
             {
-                std::unique_lock lock(mutex_);
+                std::unique_lock<std::mutex> lock(mutex_);
                 auto asyncCallSlots = std::move(calls_);
                 calls_ = {};
                 lock.unlock();
@@ -186,6 +188,7 @@ namespace sdbus::internal {
         std::atomic<const Message*> m_CurrentlyProcessedMessage{nullptr};
     };
 
+}
 }
 
 #endif /* SDBUS_CXX_INTERNAL_PROXY_H_ */

@@ -30,7 +30,8 @@
 
 #include <systemd/sd-bus.h>
 
-namespace sdbus::internal {
+namespace sdbus {
+namespace internal {
 
     class ISdBus
     {
@@ -103,6 +104,7 @@ namespace sdbus::internal {
         virtual int sd_bus_creds_get_selinux_context(sd_bus_creds *c, const char **label) = 0;
     };
 
+}
 }
 
 #endif //SDBUS_CXX_ISDBUS_H

@@ -34,6 +34,7 @@ else()
 endif()
 
 find_package(Threads REQUIRED)
+find_package(Boost REQUIRED)
 
 #-------------------------------
 # SOURCE FILES CONFIGURATION
@@ -46,10 +47,12 @@ set(SDBUSCPP_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include/${SDBUSCPP_INCLUDE_
 set(SDBUSCPP_CPP_SRCS
     ${SDBUSCPP_SOURCE_DIR}/Connection.cpp
     ${SDBUSCPP_SOURCE_DIR}/Error.cpp
+    ${SDBUSCPP_SOURCE_DIR}/IProxy.cpp
     ${SDBUSCPP_SOURCE_DIR}/Message.cpp
     ${SDBUSCPP_SOURCE_DIR}/Object.cpp
     ${SDBUSCPP_SOURCE_DIR}/Proxy.cpp
     ${SDBUSCPP_SOURCE_DIR}/Types.cpp
+    ${SDBUSCPP_SOURCE_DIR}/TypeTraits.cpp
     ${SDBUSCPP_SOURCE_DIR}/Flags.cpp
     ${SDBUSCPP_SOURCE_DIR}/VTableUtils.c
     ${SDBUSCPP_SOURCE_DIR}/SdBus.cpp)
@@ -89,7 +92,7 @@ set(SDBUSCPP_SRCS ${SDBUSCPP_CPP_SRCS} ${SDBUSCPP_HDR_SRCS} ${SDBUSCPP_PUBLIC_HD
 # GENERAL COMPILER CONFIGURATION
 #-------------------------------
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 14)
 
 #----------------------------------
 # LIBRARY BUILD INFORMATION

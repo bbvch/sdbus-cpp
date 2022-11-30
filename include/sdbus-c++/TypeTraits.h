@@ -68,19 +68,19 @@ namespace sdbus {
 
     // Tag specifying that an owning slot handle shall be returned from the function
     struct request_slot_t { explicit request_slot_t() = default; };
-    inline constexpr request_slot_t request_slot{};
+    extern const request_slot_t request_slot;
     // Tag specifying that the library shall own the slot resulting from the call of the function (so-called floating slot)
     struct floating_slot_t { explicit floating_slot_t() = default; };
-    inline constexpr floating_slot_t floating_slot{};
+    extern const floating_slot_t floating_slot;
     // Deprecated name for the above -- a floating slot
     struct dont_request_slot_t { explicit dont_request_slot_t() = default; };
-    [[deprecated("Replaced by floating_slot")]] inline constexpr dont_request_slot_t dont_request_slot{};
+    [[deprecated("Replaced by floating_slot")]] extern const dont_request_slot_t dont_request_slot;
     // Tag denoting the assumption that the caller has already obtained message ownership
     struct adopt_message_t { explicit adopt_message_t() = default; };
-    inline constexpr adopt_message_t adopt_message{};
+    extern const adopt_message_t adopt_message;
     // Tag denoting the assumption that the caller has already obtained fd ownership
     struct adopt_fd_t { explicit adopt_fd_t() = default; };
-    inline constexpr adopt_fd_t adopt_fd{};
+    extern const adopt_fd_t adopt_fd;
 
     // Template specializations for getting D-Bus signatures from C++ types
     template <typename _T>
@@ -269,9 +269,11 @@ namespace sdbus {
 
         static const std::string str()
         {
+            std::initializer_list<std::string> signatures{signature_of<_ValueTypes>::str()...};
             std::string signature;
             signature += "(";
-            (signature += ... += signature_of<_ValueTypes>::str());
+            for (const auto& item : signatures)
+                signature += item;
             signature += ")";
             return signature;
         }
@@ -516,8 +518,10 @@ namespace sdbus {
     {
         static const std::string str()
         {
+            std::initializer_list<std::string> signatures{signature_of<std::decay_t<_Types>>::str()...};
             std::string signature;
-            (void)(signature += ... += signature_of<std::decay_t<_Types>>::str());
+            for (const auto& item : signatures)
+                signature += item;
             return signature;
         }
     };
@@ -560,17 +564,25 @@ namespace sdbus {
             return std::forward<_Function>(f)(e, std::get<_I>(std::forward<_Tuple>(t))...);
         }
 
-        // For non-void returning functions, apply_impl simply returns function return value (a tuple of values).
         // For void-returning functions, apply_impl returns an empty tuple.
         template <class _Function, class _Tuple, std::size_t... _I>
-        constexpr decltype(auto) apply_impl( _Function&& f
-                                           , _Tuple&& t
-                                           , std::index_sequence<_I...> )
+        constexpr typename std::enable_if_t<std::is_void<function_result_t<_Function>>::value, std::tuple<>>
+        apply_impl( _Function&& f
+                  , _Tuple&& t
+                  , std::index_sequence<_I...> )
         {
-            if constexpr (!std::is_void_v<function_result_t<_Function>>)
-                return std::forward<_Function>(f)(std::get<_I>(std::forward<_Tuple>(t))...);
-            else
-                return std::forward<_Function>(f)(std::get<_I>(std::forward<_Tuple>(t))...), std::tuple<>{};
+            std::forward<_Function>(f)(std::get<_I>(std::forward<_Tuple>(t))...);
+            return std::tuple<>{};
+        }
+
+        // For non-void returning functions, apply_impl simply returns function return value (a tuple of values).
+        template <class _Function, class _Tuple, std::size_t... _I>
+        constexpr typename std::enable_if_t<!std::is_void<function_result_t<_Function>>::value, function_result_t<_Function>>
+        apply_impl( _Function&& f
+                  , _Tuple&& t
+                  , std::index_sequence<_I...> )
+        {
+            return std::forward<_Function>(f)(std::get<_I>(std::forward<_Tuple>(t))...);
         }
     }
 

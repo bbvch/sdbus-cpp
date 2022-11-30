@@ -62,14 +62,14 @@ TEST(AdaptorAndProxy, CanBeConstructedSuccesfully)
 
 TEST(AProxy, SupportsMoveSemantics)
 {
-    static_assert(std::is_move_constructible_v<DummyTestProxy>);
-    static_assert(std::is_move_assignable_v<DummyTestProxy>);
+    static_assert(std::is_move_constructible<DummyTestProxy>::value);
+    static_assert(std::is_move_assignable<DummyTestProxy>::value);
 }
 
 TEST(AnAdaptor, SupportsMoveSemantics)
 {
-    static_assert(std::is_move_constructible_v<DummyTestAdaptor>);
-    static_assert(std::is_move_assignable_v<DummyTestAdaptor>);
+    static_assert(std::is_move_constructible<DummyTestAdaptor>::value);
+    static_assert(std::is_move_assignable<DummyTestAdaptor>::value);
 }
 
 TEST_F(AConnection, WillCallCallbackHandlerForIncomingMessageMatchingMatchRule)

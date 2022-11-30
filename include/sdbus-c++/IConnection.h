@@ -32,7 +32,7 @@
 #include <memory>
 #include <chrono>
 #include <cstdint>
-#include <optional>
+#include <boost/optional.hpp>
 
 namespace sdbus {
 
@@ -95,7 +95,7 @@ namespace sdbus {
              *
              * @return std::nullopt if the timeout is indefinite. A duration otherwise.
              */
-            [[nodiscard]] std::optional<std::chrono::microseconds> getRelativeTimeout() const;
+            [[nodiscard]] boost::optional<std::chrono::microseconds> getRelativeTimeout() const;
 
             /*!
              * Get a converted, relative timeout which can be passed as argument 'timeout' to poll(2)

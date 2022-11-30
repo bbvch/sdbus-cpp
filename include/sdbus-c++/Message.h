@@ -283,7 +283,10 @@ namespace sdbus {
         template <typename... _Args>
         void serialize_pack(Message& msg, _Args&&... args)
         {
-            (void)(msg << ... << args);
+            // Use initializer_list because it guarantees left to right order, and can be empty
+            using _ = std::initializer_list<int>;
+            // We are not interested in the list itself, but in the side effects
+            (void)_{(void(msg << std::forward<_Args>(args)), 0)...};
         }
 
         template <class _Tuple, std::size_t... _Is>
@@ -375,7 +378,10 @@ namespace sdbus {
         template <typename... _Args>
         void deserialize_pack(Message& msg, _Args&... args)
         {
-            (void)(msg >> ... >> args);
+            // Use initializer_list because it guarantees left to right order, and can be empty
+            using _ = std::initializer_list<int>;
+            // We are not interested in the list itself, but in the side effects
+            (void)_{(void(msg >> args), 0)...};
         }
 
         template <class _Tuple, std::size_t... _Is>
