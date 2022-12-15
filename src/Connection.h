@@ -85,7 +85,7 @@ namespace internal {
         void setMethodCallTimeout(uint64_t timeout) override;
         uint64_t getMethodCallTimeout() const override;
 
-        [[nodiscard]] Slot addMatch(const std::string& match, message_handler callback) override;
+        Slot addMatch(const std::string& match, message_handler callback) override;
         void addMatch(const std::string& match, message_handler callback, floating_slot_t) override;
 
         const ISdBus& getSdBusInterface() const override;
@@ -158,6 +158,9 @@ namespace internal {
             message_handler callback;
             Connection& connection;
             sd_bus_slot *slot;
+            
+            MatchInfo(message_handler _callback, Connection& _connection, sd_bus_slot *_slot)
+                : callback(_callback), connection(_connection), slot(_slot) {}
         };
 
     private:

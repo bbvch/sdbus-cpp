@@ -468,20 +468,11 @@ namespace sdbus {
         : public function_traits<FunctionType>
     {};
 
-    template <class _Function>
-    constexpr auto is_async_method_v = function_traits<_Function>::is_async;
-
-    template <class _Function>
-    constexpr auto has_error_param_v = function_traits<_Function>::has_error_param;
-
     template <typename _FunctionType>
     using function_arguments_t = typename function_traits<_FunctionType>::arguments_type;
 
     template <typename _FunctionType, size_t _Idx>
     using function_argument_t = typename function_traits<_FunctionType>::template arg_t<_Idx>;
-
-    template <typename _FunctionType>
-    constexpr auto function_argument_count_v = function_traits<_FunctionType>::arity;
 
     template <typename _FunctionType>
     using function_result_t = typename function_traits<_FunctionType>::result_type;

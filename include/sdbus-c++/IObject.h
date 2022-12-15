@@ -358,7 +358,7 @@ namespace sdbus {
          *
          * @throws sdbus::Error in case of failure
          */
-        [[nodiscard]] MethodRegistrator registerMethod(const std::string& methodName);
+        MethodRegistrator registerMethod(const std::string& methodName);
 
         /*!
          * @brief Registers signal that the object will provide on D-Bus
@@ -377,7 +377,7 @@ namespace sdbus {
          *
          * @throws sdbus::Error in case of failure
          */
-        [[nodiscard]] SignalRegistrator registerSignal(const std::string& signalName);
+        SignalRegistrator registerSignal(const std::string& signalName);
 
         /*!
          * @brief Registers property that the object will provide on D-Bus
@@ -396,7 +396,7 @@ namespace sdbus {
          *
          * @throws sdbus::Error in case of failure
          */
-        [[nodiscard]] PropertyRegistrator registerProperty(const std::string& propertyName);
+        PropertyRegistrator registerProperty(const std::string& propertyName);
 
         /*!
          * @brief Sets flags (annotations) for a given interface
@@ -413,7 +413,7 @@ namespace sdbus {
          *
          * @throws sdbus::Error in case of failure
          */
-        [[nodiscard]] InterfaceFlagsSetter setInterfaceFlags(const std::string& interfaceName);
+        InterfaceFlagsSetter setInterfaceFlags(const std::string& interfaceName);
 
         /*!
          * @brief Emits signal on D-Bus
@@ -434,7 +434,7 @@ namespace sdbus {
          *
          * @throws sdbus::Error in case of failure
          */
-        [[nodiscard]] SignalEmitter emitSignal(const std::string& signalName);
+        SignalEmitter emitSignal(const std::string& signalName);
 
         /*!
          * @brief Returns object path of the underlying DBus object
@@ -503,7 +503,7 @@ namespace sdbus {
      * auto proxy = sdbus::createObject(connection, "/com/kistler/foo");
      * @endcode
      */
-    [[nodiscard]] std::unique_ptr<sdbus::IObject> createObject(sdbus::IConnection& connection, std::string objectPath);
+    std::unique_ptr<sdbus::IObject> createObject(sdbus::IConnection& connection, std::string objectPath);
 
 }
 

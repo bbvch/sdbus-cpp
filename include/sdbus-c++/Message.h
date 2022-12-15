@@ -67,7 +67,7 @@ namespace sdbus {
      * of @c IObject and @c IProxy.
      *
      ***********************************************/
-    class [[nodiscard]] Message
+    class Message
     {
     public:
         Message& operator<<(bool item);
@@ -178,7 +178,7 @@ namespace sdbus {
         MethodReply send(uint64_t timeout) const;
         [[deprecated("Use send overload with floating_slot instead")]] void send(void* callback, void* userData, uint64_t timeout, dont_request_slot_t) const;
         void send(void* callback, void* userData, uint64_t timeout, floating_slot_t) const;
-        [[nodiscard]] Slot send(void* callback, void* userData, uint64_t timeout) const;
+        Slot send(void* callback, void* userData, uint64_t timeout) const;
 
         MethodReply createReply() const;
         MethodReply createErrorReply(const sdbus::Error& error) const;

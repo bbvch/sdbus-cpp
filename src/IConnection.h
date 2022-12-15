@@ -57,7 +57,7 @@ namespace internal {
         virtual const ISdBus& getSdBusInterface() const = 0;
         virtual ISdBus& getSdBusInterface() = 0;
 
-        [[nodiscard]] virtual Slot addObjectVTable( const std::string& objectPath
+        virtual Slot addObjectVTable( const std::string& objectPath
                                                   , const std::string& interfaceName
                                                   , const sd_bus_vtable* vtable
                                                   , void* userData ) = 0;
@@ -82,9 +82,9 @@ namespace internal {
                                                 , const std::vector<std::string>& interfaces ) = 0;
 
         using sdbus::IConnection::addObjectManager;
-        [[nodiscard]] virtual Slot addObjectManager(const std::string& objectPath, request_slot_t) = 0;
+        virtual Slot addObjectManager(const std::string& objectPath, request_slot_t) = 0;
 
-        [[nodiscard]] virtual Slot registerSignalHandler( const std::string& sender
+        virtual Slot registerSignalHandler( const std::string& sender
                                                         , const std::string& objectPath
                                                         , const std::string& interfaceName
                                                         , const std::string& signalName
@@ -95,8 +95,8 @@ namespace internal {
         virtual MethodReply tryCallMethodSynchronously(const MethodCall& message, uint64_t timeout) = 0;
     };
 
-    [[nodiscard]] std::unique_ptr<sdbus::internal::IConnection> createConnection();
-    [[nodiscard]] std::unique_ptr<sdbus::internal::IConnection> createPseudoConnection();
+    std::unique_ptr<sdbus::internal::IConnection> createConnection();
+    std::unique_ptr<sdbus::internal::IConnection> createPseudoConnection();
 
 }
 }

@@ -39,7 +39,8 @@
 #include <utility>
 #include <cassert>
 
-namespace sdbus::internal {
+namespace sdbus {
+namespace internal {
 
 Object::Object(sdbus::internal::IConnection& connection, std::string objectPath)
     : connection_(connection), objectPath_(std::move(objectPath))
@@ -429,8 +430,6 @@ int Object::sdbus_property_set_callback( sd_bus */*bus*/
 }
 
 }
-
-namespace sdbus {
 
 std::unique_ptr<sdbus::IObject> createObject(sdbus::IConnection& connection, std::string objectPath)
 {

@@ -56,9 +56,9 @@ namespace sdbus {
 
         MethodRegistrator& onInterface(std::string interfaceName);
         template <typename _Function>
-        typename std::enable_if_t<!is_async_method_v<_Function>, MethodRegistrator&> implementedAs(_Function&& callback);
+        typename std::enable_if_t<!function_traits<_Function>::is_async, MethodRegistrator&> implementedAs(_Function&& callback);
         template <typename _Function>
-        typename std::enable_if_t<is_async_method_v<_Function>, MethodRegistrator&> implementedAs(_Function&& callback);
+        typename std::enable_if_t<function_traits<_Function>::is_async, MethodRegistrator&> implementedAs(_Function&& callback);
         MethodRegistrator& withInputParamNames(std::vector<std::string> paramNames);
         template <typename... _String> MethodRegistrator& withInputParamNames(_String... paramNames);
         MethodRegistrator& withOutputParamNames(std::vector<std::string> paramNames);
@@ -77,7 +77,7 @@ namespace sdbus {
         std::vector<std::string> outputParamNames_;
         method_callback methodCallback_;
         Flags flags_;
-        int exceptions_{}; // Number of active exceptions when SignalRegistrator is constructed
+        bool exception_{}; // Whether there is an active exception when SignalRegistrator is constructed
     };
 
     class SignalRegistrator
@@ -100,7 +100,7 @@ namespace sdbus {
         std::string signalSignature_;
         std::vector<std::string> paramNames_;
         Flags flags_;
-        int exceptions_{}; // Number of active exceptions when SignalRegistrator is constructed
+        bool exception_{}; // Whether there is an active exception when SignalRegistrator is constructed
     };
 
     class PropertyRegistrator
@@ -125,7 +125,7 @@ namespace sdbus {
         property_get_callback getter_;
         property_set_callback setter_;
         Flags flags_;
-        int exceptions_{}; // Number of active exceptions when PropertyRegistrator is constructed
+        bool exception_{}; // Whether there is an active exception when SignalRegistrator is constructed
     };
 
     class InterfaceFlagsSetter
@@ -144,7 +144,7 @@ namespace sdbus {
         IObject& object_;
         const std::string& interfaceName_;
         Flags flags_;
-        int exceptions_{}; // Number of active exceptions when InterfaceFlagsSetter is constructed
+        bool exception_{}; // Whether there is an active exception when SignalRegistrator is constructed
     };
 
     class SignalEmitter
@@ -160,7 +160,7 @@ namespace sdbus {
         IObject& object_;
         const std::string& signalName_;
         Signal signal_;
-        int exceptions_{}; // Number of active exceptions when SignalEmitter is constructed
+        bool exception_{}; // Whether there is an active exception when SignalRegistrator is constructed
     };
 
     class MethodInvoker
@@ -184,7 +184,7 @@ namespace sdbus {
         const std::string& methodName_;
         uint64_t timeout_{};
         MethodCall method_;
-        int exceptions_{}; // Number of active exceptions when MethodInvoker is constructed
+        bool exception_{}; // Whether there is an active exception when SignalRegistrator is constructed
         bool methodCalled_{};
     };
 
@@ -212,9 +212,9 @@ namespace sdbus {
         SignalSubscriber(IProxy& proxy, const std::string& signalName);
         SignalSubscriber& onInterface(std::string interfaceName);
         template <typename _Function>
-        std::enable_if_t<has_error_param_v<_Function>> call(_Function&& callback);
+        std::enable_if_t<function_traits<_Function>::has_error_param> call(_Function&& callback);
         template <typename _Function>
-        std::enable_if_t<!has_error_param_v<_Function>> call(_Function&& callback);
+        std::enable_if_t<!function_traits<_Function>::has_error_param> call(_Function&& callback);
 
     private:
         IProxy& proxy_;

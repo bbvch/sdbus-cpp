@@ -49,14 +49,14 @@ namespace sdbus {
     inline MethodRegistrator::MethodRegistrator(IObject& object, const std::string& methodName)
         : object_(object)
         , methodName_(methodName)
-        , exceptions_(std::uncaught_exceptions())
+        , exception_(std::uncaught_exception())
     {
     }
 
     inline MethodRegistrator::~MethodRegistrator() noexcept(false) // since C++11, destructors must
     {                                                              // explicitly be allowed to throw
         // Don't register the method if MethodRegistrator threw an exception in one of its methods
-        if (std::uncaught_exceptions() != exceptions_)
+        if (std::uncaught_exception() != exception_)
             return;
 
         assert(!interfaceName_.empty()); // onInterface() must be placed/called prior to this function
@@ -89,7 +89,7 @@ namespace sdbus {
     }
 
     template <typename _Function>
-    std::enable_if_t<!is_async_method_v<_Function>, sdbus::MethodRegistrator&> MethodRegistrator::implementedAs(_Function&& callback)
+    std::enable_if_t<!function_traits<_Function>::is_async, sdbus::MethodRegistrator&> MethodRegistrator::implementedAs(_Function&& callback)
     {
         inputSignature_ = signature_of_function_input_arguments<_Function>::str();
         outputSignature_ = signature_of_function_output_arguments<_Function>::str();
@@ -115,7 +115,7 @@ namespace sdbus {
     }
 
     template <typename _Function>
-    std::enable_if_t<is_async_method_v<_Function>, sdbus::MethodRegistrator&> MethodRegistrator::implementedAs(_Function&& callback)
+    std::enable_if_t<function_traits<_Function>::is_async, sdbus::MethodRegistrator&> MethodRegistrator::implementedAs(_Function&& callback)
     {
         inputSignature_ = signature_of_function_input_arguments<_Function>::str();
         outputSignature_ = signature_of_function_output_arguments<_Function>::str();
@@ -194,14 +194,14 @@ namespace sdbus {
     inline SignalRegistrator::SignalRegistrator(IObject& object, const std::string& signalName)
         : object_(object)
         , signalName_(signalName)
-        , exceptions_(std::uncaught_exceptions())
+        , exception_(std::uncaught_exception())
     {
     }
 
     inline SignalRegistrator::~SignalRegistrator() noexcept(false) // since C++11, destructors must
     {                                                              // explicitly be allowed to throw
         // Don't register the signal if SignalRegistrator threw an exception in one of its methods
-        if (std::uncaught_exceptions() != exceptions_)
+        if (std::uncaught_exception() != exception_)
             return;
 
         assert(!interfaceName_.empty()); // onInterface() must be placed/called prior to this function
@@ -268,14 +268,14 @@ namespace sdbus {
     inline PropertyRegistrator::PropertyRegistrator(IObject& object, const std::string& propertyName)
         : object_(object)
         , propertyName_(propertyName)
-        , exceptions_(std::uncaught_exceptions())
+        , exception_(std::uncaught_exception())
     {
     }
 
     inline PropertyRegistrator::~PropertyRegistrator() noexcept(false) // since C++11, destructors must
     {                                                                  // explicitly be allowed to throw
         // Don't register the property if PropertyRegistrator threw an exception in one of its methods
-        if (std::uncaught_exceptions() != exceptions_)
+        if (std::uncaught_exception() != exception_)
             return;
 
         assert(!interfaceName_.empty()); // onInterface() must be placed/called prior to this function
@@ -375,14 +375,14 @@ namespace sdbus {
     inline InterfaceFlagsSetter::InterfaceFlagsSetter(IObject& object, const std::string& interfaceName)
         : object_(object)
         , interfaceName_(interfaceName)
-        , exceptions_(std::uncaught_exceptions())
+        , exception_(std::uncaught_exception())
     {
     }
 
     inline InterfaceFlagsSetter::~InterfaceFlagsSetter() noexcept(false) // since C++11, destructors must
     {                                                                    // explicitly be allowed to throw
         // Don't set any flags if InterfaceFlagsSetter threw an exception in one of its methods
-        if (std::uncaught_exceptions() != exceptions_)
+        if (std::uncaught_exception() != exception_)
             return;
 
         // setInterfaceFlags() can throw. But as the InterfaceFlagsSetter shall always be used as an unnamed,
@@ -432,14 +432,14 @@ namespace sdbus {
     inline SignalEmitter::SignalEmitter(IObject& object, const std::string& signalName)
         : object_(object)
         , signalName_(signalName)
-        , exceptions_(std::uncaught_exceptions())
+        , exception_(std::uncaught_exception())
     {
     }
 
     inline SignalEmitter::~SignalEmitter() noexcept(false) // since C++11, destructors must
     {                                                      // explicitly be allowed to throw
         // Don't emit the signal if SignalEmitter threw an exception in one of its methods
-        if (std::uncaught_exceptions() != exceptions_)
+        if (std::uncaught_exception() != exception_)
             return;
 
         // emitSignal() can throw. But as the SignalEmitter shall always be used as an unnamed,
@@ -476,7 +476,7 @@ namespace sdbus {
     inline MethodInvoker::MethodInvoker(IProxy& proxy, const std::string& methodName)
         : proxy_(proxy)
         , methodName_(methodName)
-        , exceptions_(std::uncaught_exceptions())
+        , exception_(std::uncaught_exception())
     {
     }
 
@@ -484,7 +484,7 @@ namespace sdbus {
     {                                                      // explicitly be allowed to throw
         // Don't call the method if it has been called already or if MethodInvoker
         // threw an exception in one of its methods
-        if (methodCalled_ || std::uncaught_exceptions() != exceptions_)
+        if (methodCalled_ || std::uncaught_exception() != exception_)
             return;
 
         // callMethod() can throw. But as the MethodInvoker shall always be used as an unnamed,
@@ -642,7 +642,7 @@ namespace sdbus {
     }
 
     template <typename _Function>
-    inline std::enable_if_t<has_error_param_v<_Function>> SignalSubscriber::call(_Function&& callback)
+    inline std::enable_if_t<function_traits<_Function>::has_error_param> SignalSubscriber::call(_Function&& callback)
     {
         assert(!interfaceName_.empty()); // onInterface() must be placed/called prior to this function
 
@@ -676,7 +676,7 @@ namespace sdbus {
     }
 
     template <typename _Function>
-    inline std::enable_if_t<!has_error_param_v<_Function>> SignalSubscriber::call(_Function&& callback)
+    inline std::enable_if_t<!function_traits<_Function>::has_error_param> SignalSubscriber::call(_Function&& callback)
     {
         assert(!interfaceName_.empty()); // onInterface() must be placed/called prior to this function
 

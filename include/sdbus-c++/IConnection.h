@@ -85,7 +85,7 @@ namespace sdbus {
              *
              * @return a duration since the CLOCK_MONOTONIC epoch started.
              */
-            [[nodiscard]] std::chrono::microseconds getAbsoluteTimeout() const
+            std::chrono::microseconds getAbsoluteTimeout() const
             {
                 return std::chrono::microseconds(timeout_usec);
             }
@@ -95,7 +95,7 @@ namespace sdbus {
              *
              * @return std::nullopt if the timeout is indefinite. A duration otherwise.
              */
-            [[nodiscard]] boost::optional<std::chrono::microseconds> getRelativeTimeout() const;
+            boost::optional<std::chrono::microseconds> getRelativeTimeout() const;
 
             /*!
              * Get a converted, relative timeout which can be passed as argument 'timeout' to poll(2)
@@ -103,7 +103,7 @@ namespace sdbus {
              * @return -1 if the timeout is indefinite. 0 if the poll(2) shouldn't block. An integer in milli
              * seconds otherwise.
              */
-            [[nodiscard]] int getPollTimeout() const;
+            int getPollTimeout() const;
         };
 
         virtual ~IConnection() = default;
@@ -286,7 +286,7 @@ namespace sdbus {
          *
          * @throws sdbus::Error in case of failure
          */
-        [[nodiscard]] virtual Slot addMatch(const std::string& match, message_handler callback) = 0;
+        virtual Slot addMatch(const std::string& match, message_handler callback) = 0;
 
         /*!
          * @brief Adds a floating match rule for incoming message dispatching
@@ -369,7 +369,7 @@ namespace sdbus {
      *
      * @throws sdbus::Error in case of failure
      */
-    [[nodiscard]] std::unique_ptr<sdbus::IConnection> createConnection();
+    std::unique_ptr<sdbus::IConnection> createConnection();
 
     /*!
      * @brief Creates/opens D-Bus system bus connection with a name
@@ -379,7 +379,7 @@ namespace sdbus {
      *
      * @throws sdbus::Error in case of failure
      */
-    [[nodiscard]] std::unique_ptr<sdbus::IConnection> createConnection(const std::string& name);
+    std::unique_ptr<sdbus::IConnection> createConnection(const std::string& name);
 
     /*!
      * @brief Creates/opens D-Bus session bus connection when in a user context, and a system bus connection, otherwise.
@@ -388,7 +388,7 @@ namespace sdbus {
      *
      * @throws sdbus::Error in case of failure
      */
-    [[nodiscard]] std::unique_ptr<sdbus::IConnection> createDefaultBusConnection();
+    std::unique_ptr<sdbus::IConnection> createDefaultBusConnection();
 
     /*!
      * @brief Creates/opens D-Bus session bus connection with a name when in a user context, and a system bus connection with a name, otherwise.
@@ -398,7 +398,7 @@ namespace sdbus {
      *
      * @throws sdbus::Error in case of failure
      */
-    [[nodiscard]] std::unique_ptr<sdbus::IConnection> createDefaultBusConnection(const std::string& name);
+    std::unique_ptr<sdbus::IConnection> createDefaultBusConnection(const std::string& name);
 
     /*!
      * @brief Creates/opens D-Bus system bus connection
@@ -407,7 +407,7 @@ namespace sdbus {
      *
      * @throws sdbus::Error in case of failure
      */
-    [[nodiscard]] std::unique_ptr<sdbus::IConnection> createSystemBusConnection();
+    std::unique_ptr<sdbus::IConnection> createSystemBusConnection();
 
     /*!
      * @brief Creates/opens D-Bus system bus connection with a name
@@ -417,7 +417,7 @@ namespace sdbus {
      *
      * @throws sdbus::Error in case of failure
      */
-    [[nodiscard]] std::unique_ptr<sdbus::IConnection> createSystemBusConnection(const std::string& name);
+    std::unique_ptr<sdbus::IConnection> createSystemBusConnection(const std::string& name);
 
     /*!
      * @brief Creates/opens D-Bus session bus connection
@@ -426,7 +426,7 @@ namespace sdbus {
      *
      * @throws sdbus::Error in case of failure
      */
-    [[nodiscard]] std::unique_ptr<sdbus::IConnection> createSessionBusConnection();
+    std::unique_ptr<sdbus::IConnection> createSessionBusConnection();
 
     /*!
      * @brief Creates/opens D-Bus session bus connection with a name
@@ -436,7 +436,7 @@ namespace sdbus {
      *
      * @throws sdbus::Error in case of failure
      */
-    [[nodiscard]] std::unique_ptr<sdbus::IConnection> createSessionBusConnection(const std::string& name);
+    std::unique_ptr<sdbus::IConnection> createSessionBusConnection(const std::string& name);
 
     /*!
      * @brief Creates/opens D-Bus session bus connection at a custom address
@@ -448,7 +448,7 @@ namespace sdbus {
      *
      * Consult manual pages for `sd_bus_set_address` of the underlying sd-bus library for more information.
      */
-    [[nodiscard]] std::unique_ptr<sdbus::IConnection> createSessionBusConnectionWithAddress(const std::string& address);
+    std::unique_ptr<sdbus::IConnection> createSessionBusConnectionWithAddress(const std::string& address);
 
     /*!
      * @brief Creates/opens D-Bus system connection on a remote host using ssh
@@ -458,7 +458,7 @@ namespace sdbus {
      *
      * @throws sdbus::Error in case of failure
      */
-    [[nodiscard]] std::unique_ptr<sdbus::IConnection> createRemoteSystemBusConnection(const std::string& host);
+    std::unique_ptr<sdbus::IConnection> createRemoteSystemBusConnection(const std::string& host);
 }
 
 #endif /* SDBUS_CXX_ICONNECTION_H_ */
