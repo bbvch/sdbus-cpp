@@ -33,7 +33,7 @@
 #include <string>
 #include <memory>
 #include <map>
-#include <unordered_map>
+#include <deque>
 #include <mutex>
 #include <atomic>
 #include <condition_variable>
@@ -59,6 +59,8 @@ namespace internal {
         MethodCall createMethodCall(const std::string& interfaceName, const std::string& methodName) override;
         MethodReply callMethod(const MethodCall& message, uint64_t timeout) override;
         PendingAsyncCall callMethod(const MethodCall& message, async_reply_handler asyncReplyCallback, uint64_t timeout) override;
+        std::future<MethodReply> callMethod(const MethodCall& message, with_future_t) override;
+        std::future<MethodReply> callMethod(const MethodCall& message, uint64_t timeout, with_future_t) override;
 
         void registerSignalHandler( const std::string& interfaceName
                                   , const std::string& signalName
@@ -137,6 +139,7 @@ namespace internal {
                 Proxy& proxy;
                 async_reply_handler callback;
                 Slot slot;
+                bool finished { false };
             };
 
             ~AsyncCalls()
@@ -144,19 +147,20 @@ namespace internal {
                 clear();
             }
 
-            bool addCall(void* slot, std::shared_ptr<CallData> asyncCallData)
+            void addCall(std::shared_ptr<CallData> asyncCallData)
             {
                 std::lock_guard<std::mutex> lock(mutex_);
-                return calls_.emplace(slot, std::move(asyncCallData)).second;
+                if (!asyncCallData->finished) // The call may have finished in the mean time
+                    calls_.emplace_back(std::move(asyncCallData));
             }
 
-            void removeCall(void* slot)
+            void removeCall(CallData* data)
             {
                 std::unique_lock<std::mutex> lock(mutex_);
-                auto it = calls_.find(slot);
-                if (it != calls_.end())
+                data->finished = true;
+                if (auto it = std::find_if(calls_.begin(), calls_.end(), [data](auto const& entry){ return entry.get() == data; }); it != calls_.end())
                 {
-                    auto callData = std::move(it->second);
+                    auto callData = std::move(*it);
                     calls_.erase(it);
                     lock.unlock();
 
@@ -182,7 +186,7 @@ namespace internal {
 
         private:
             std::mutex mutex_;
-            std::unordered_map<void*, std::shared_ptr<CallData>> calls_;
+            std::deque<std::shared_ptr<CallData>> calls_;
         } pendingAsyncCalls_;
 
         std::atomic<const Message*> m_CurrentlyProcessedMessage{nullptr};
