@@ -37,6 +37,7 @@
 #include <mutex>
 #include <atomic>
 #include <condition_variable>
+#include <algorithm>
 
 namespace sdbus {
 namespace internal {
@@ -158,7 +159,8 @@ namespace internal {
             {
                 std::unique_lock<std::mutex> lock(mutex_);
                 data->finished = true;
-                if (auto it = std::find_if(calls_.begin(), calls_.end(), [data](auto const& entry){ return entry.get() == data; }); it != calls_.end())
+                auto it = std::find_if(calls_.begin(), calls_.end(), [data](auto const& entry){ return entry.get() == data; });
+                if (it != calls_.end())
                 {
                     auto callData = std::move(*it);
                     calls_.erase(it);

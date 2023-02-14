@@ -625,7 +625,8 @@ namespace sdbus {
     }
 
     template <typename... _Args>
-    std::future<future_return_t<_Args...>> AsyncMethodInvoker::getResultAsFuture()
+    typename std::enable_if<!std::is_void<future_return_t<_Args...>>::value, std::future<future_return_t<_Args...>>>::type
+    AsyncMethodInvoker::getResultAsFuture()
     {
         auto promise = std::make_shared<std::promise<future_return_t<_Args...>>>();
         auto future = promise->get_future();
@@ -633,10 +634,28 @@ namespace sdbus {
         uponReplyInvoke([promise = std::move(promise)](const Error* error, _Args... args)
         {
             if (error == nullptr)
-                if constexpr (!std::is_void_v<future_return_t<_Args...>>)
-                    promise->set_value({std::move(args)...});
-                else
-                    promise->set_value();
+                promise->set_value({std::move(args)...});
+            else
+                promise->set_exception(std::make_exception_ptr(*error));
+        });
+
+        // Will be std::future<void> for no D-Bus method return value
+        //      or std::future<T> for single D-Bus method return value
+        //      or std::future<std::tuple<...>> for multiple method return values
+        return future;
+    }
+
+    template <typename... _Args>
+    typename std::enable_if<std::is_void<future_return_t<_Args...>>::value, std::future<void>>::type 
+    AsyncMethodInvoker::getResultAsFuture()
+    {
+        auto promise = std::make_shared<std::promise<future_return_t<_Args...>>>();
+        auto future = promise->get_future();
+
+        uponReplyInvoke([promise = std::move(promise)](const Error* error, _Args... args)
+        {
+            if (error == nullptr)
+                promise->set_value();
             else
                 promise->set_exception(std::make_exception_ptr(*error));
         });

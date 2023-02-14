@@ -34,5 +34,7 @@ const floating_slot_t floating_slot{};
 const dont_request_slot_t dont_request_slot{};
 const adopt_message_t adopt_message{};
 const adopt_fd_t adopt_fd{};
+const dont_run_event_loop_thread_t dont_run_event_loop_thread{};
+const with_future_t with_future{};
 
 }

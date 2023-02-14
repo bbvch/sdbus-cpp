@@ -202,7 +202,10 @@ namespace sdbus {
         // Returned future will be std::future<void> for no (void) D-Bus method return value
         //                      or std::future<T> for single D-Bus method return value
         //                      or std::future<std::tuple<...>> for multiple method return values
-        template <typename... _Args> std::future<future_return_t<_Args...>> getResultAsFuture();
+        template <typename... _Args> typename std::enable_if<!std::is_void<future_return_t<_Args...>>::value, 
+                                                             std::future<future_return_t<_Args...>>>::type getResultAsFuture();
+        template <typename... _Args> typename std::enable_if<std::is_void<future_return_t<_Args...>>::value, 
+                                                             std::future<void>>::type getResultAsFuture();
 
     private:
         IProxy& proxy_;

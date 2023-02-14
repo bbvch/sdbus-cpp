@@ -84,10 +84,10 @@ namespace sdbus {
     // Tag specifying that the proxy shall not run an event loop thread on its D-Bus connection.
     // Such proxies are typically created to carry out a simple synchronous D-Bus call(s) and then are destroyed.
     struct dont_run_event_loop_thread_t { explicit dont_run_event_loop_thread_t() = default; };
-    inline constexpr dont_run_event_loop_thread_t dont_run_event_loop_thread{};
+    extern const dont_run_event_loop_thread_t dont_run_event_loop_thread;
     // Tag denoting an asynchronous call that returns std::future as a handle
     struct with_future_t { explicit with_future_t() = default; };
-    inline constexpr with_future_t with_future{};
+    extern const with_future_t with_future;
 
     // Template specializations for getting D-Bus signatures from C++ types
     template <typename _T>
